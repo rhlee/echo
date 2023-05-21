@@ -18,9 +18,13 @@ class Application {
       {processorOptions: {sampleSize: duration * this.context.sampleRate}}
     );
     this.port = processor.port;
-    this.port.postMessage(null);
     this.port.onmessage = this.play.bind(this);
+    this.record();
     this.source.connect(processor);
+  }
+
+  record(message) {
+    this.port.postMessage(null);
   }
 
   play(message) {
@@ -28,6 +32,7 @@ class Application {
     const bufferSource = this.context.createBufferSource();
     bufferSource.connect(this.context.destination);
     bufferSource.buffer = this.buffer;
+    bufferSource.onended = this.record.bind(this);
     bufferSource.start();
   }
 }
