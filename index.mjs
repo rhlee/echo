@@ -6,6 +6,8 @@ class Application {
   constructor(context, stream) {
     this.context = context;
     this.source = this.context.createMediaStreamSource(stream);
+    this.buffer = this.context.
+      createBuffer(1, this.context.sampleRate, this.context.sampleRate);
   }
 
   async start() {
@@ -22,7 +24,11 @@ class Application {
   }
 
   play(message) {
-    console.log(message);
+    this.buffer.copyToChannel(new Float32Array(message.data), 0);
+    const bufferSource = this.context.createBufferSource();
+    bufferSource.connect(this.context.destination);
+    bufferSource.buffer = this.buffer;
+    bufferSource.start();
   }
 }
 
